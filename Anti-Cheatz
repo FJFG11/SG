@@ -1,0 +1,17 @@
+return(function()
+	local a,b,c=game:GetService("Players"),game:GetService("RunService"),game:GetService("ReplicatedStorage")
+	local d=setmetatable({},{__mode="k"})
+	local function e(f,g,h)local i=0 while not f:FindFirstChild(g) and i<h do task.wait(0.1)i+=0.1 end return f:FindFirstChild(g)end
+	local j=e(c,"ANTI_CHEAT_REPLICATED_STORAGE",5)if not j then warn("[Anti-Cheat] Config missing.")return end
+	local k=require(j)
+	local function l(m)return k.Whitelist[m.Name]end
+	local function n(o,p)if l(o)then return end d[o]=(d[o]or 0)+1 local q=d[o]warn(("[Anti-Cheat] %s flagged for %s (%d/%d)"):format(o.Name,p,q,k.ViolationThreshold))if q>=k.ViolationThreshold then o:Kick("[Anti-Cheat] You have been removed for tripping the anti-cheat 3/3 times.")end end
+	local function r(s)local function t(u)local v=u:WaitForChild("Humanoid")local w=u:WaitForChild("HumanoidRootPart")
+			task.spawn(function()while s.Parent and u.Parent do local x=RaycastParams.new()x.FilterDescendantsInstances={u}x.FilterType=Enum.RaycastFilterType.Blacklist
+					if not workspace:Raycast(w.Position,Vector3.new(0,-k.FlyingYDelta,0),x)then n(s,"Flying")end task.wait(k.CheckInterval)end end)
+			task.spawn(function()while s.Parent and u.Parent do if w.Velocity.Magnitude>k.MaxSpeed then n(s,"Speed Hacking")end task.wait(k.CheckInterval)end end)
+			v.HealthChanged:Connect(function(y)if y>k.MaxHealth or y<0 then n(s,"Health Manipulation")end end)
+		end
+		s.CharacterAdded:Connect(t)if s.Character then t(s.Character)end end
+	a.PlayerAdded:Connect(function(z)if not l(z)then r(z)end end)
+end)
